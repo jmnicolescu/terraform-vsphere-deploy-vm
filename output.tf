@@ -2,7 +2,7 @@
 # File Name: output.tf
 # Query Data with Output Variables.
 #
-# Tue Nov 2 12:59:12 BST 2020 - juliusn - initial script
+# Tue Nov 2 12:59:12 GMT 2020 - juliusn - initial script
 # -------------------------------------------------------------
 
 output "VM-name" {

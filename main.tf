@@ -7,7 +7,7 @@
 # REQUIREMENTS #2: deploy_vsphere_folder and deploy_vsphere_sub_folder must exist
 #                  cd helpers/folders && terraform apply
 #
-# Tue Nov 2 12:59:12 BST 2020 - juliusn - initial script
+# Tue Nov 2 12:59:12 GMT 2020 - juliusn - initial script
 # -------------------------------------------------------------
 
 # -- Provider
@@ -18,7 +18,10 @@ provider "vsphere" {
     allow_unverified_ssl    = var.provider_vsphere_unverified_ssl
 }
 
-# -- Data sources
+# -------------------------------------------------------------
+# Data source definition
+# -------------------------------------------------------------
+
 data "vsphere_datacenter" "target_dc" {
     name = var.vsphere_datacenter
 }
@@ -63,7 +66,19 @@ locals {
     timestamp = formatdate("EEEE, DD-MMM-YYYY hh:mm:ss ZZZ", timestamp())
 }
 
-# -- Resources
+# -------------------------------------------------------------
+# Resource definition
+# -------------------------------------------------------------
+resource "null_resource" "pre_script" {
+  provisioner "local-exec" {
+    #  20_check_datastore_free_space.ps1 script returns  0 if the datastore has more free space than var.datastore_freespace_limit
+    #  20_check_datastore_free_space.ps1 script returns -1 if the datastore has less free space than var.datastore_freespace_limit
+    #  Error & Exit if there is not enough free space on the datastore
+    command = "./scripts/20_check_datastore_free_space.ps1 ${var.vsphere_datastore} ${var.datastore_freespace_limit}"
+    interpreter = ["/bin/pwsh", "-Command"]
+  }
+}
+
 resource "vsphere_virtual_machine" "myvm" {
     name                = var.guest_vm_name
     resource_pool_id    = data.vsphere_compute_cluster.target_cluster.resource_pool_id
@@ -115,4 +130,18 @@ resource "vsphere_virtual_machine" "myvm" {
     tags = [
         data.vsphere_tag.tag_category.id
     ]
+    depends_on    = [null_resource.pre_script]
+
+    # Measure of safety against an accidental destroy
+    # lifecycle {
+    #     prevent_destroy = true
+    # }
+}
+
+resource "null_resource" "post_script" {
+  provisioner "local-exec" {
+    command = "./scripts/30_email_vm_report.ps1 ${var.provider_vsphere_host} ${var.guest_vm_name}"
+    interpreter = ["/bin/pwsh", "-Command"]
+  }
+  depends_on    = [vsphere_virtual_machine.myvm]
 }

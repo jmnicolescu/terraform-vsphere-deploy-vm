@@ -2,7 +2,7 @@
 # File Name: variables.tf
 # Defining simple variables required for VM deployment
 #
-# Tue Nov 3 12:59:12 BST 2020 - juliusn - initial script
+# Tue Nov 3 12:59:12 GMT 2020 - juliusn - initial script
 # -------------------------------------------------------------
 
 # -------------------------------------------------------------
@@ -51,6 +51,10 @@ variable "vsphere_folder" {
 
 variable "vsphere_sub_folder" {
     description = "The path to the sub folder to put this virtual machine in."
+}
+
+variable "datastore_freespace_limit"  {
+    description = "Minimum free space % available on the datastore to deploy a new VM."
 }
 
 # -------------------------------------------------------------

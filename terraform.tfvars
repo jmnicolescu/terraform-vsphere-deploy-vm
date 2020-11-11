@@ -2,7 +2,7 @@
 # File Name: teraform.tfvars
 # Defining simple variables and credentials required for VM deployment
 #
-# Tue Nov 3 12:59:12 BST 2020 - juliusn - initial script
+# Tue Nov 3 12:59:12 GMT 2020 - juliusn - initial script
 # -------------------------------------------------------------
 
 # -------------------------------------------------------------
@@ -26,15 +26,19 @@ vsphere_datastore = "vsanDatastore"
 vsphere_folder = "Production"
 vsphere_sub_folder = "Applications"
 
+# Fail to deploy VM if datastore free space is less than datastore_freespace_limit
+datastore_freespace_limit = "10"
+
 # -------------------------------------------------------------
 # GUEST - VMware vSphere VM settings 
 # -------------------------------------------------------------
-guest_template = "CentOS7-Template-noX"
-guest_id = "centos64Guest"
+guest_template = "CentOS7-Template-GNOME"
+# use guest_id provided by the Template
+# guest_id = "centos64Guest"
 guest_template_folder = "Templates"
 guest_vm_name = "nat-web01"
-guest_vcpu = "1"
-guest_memory = "4096"
+guest_vcpu = "2"
+guest_memory = "8192"
 guest_disk0_size = "30"
 guest_network = "lab-mgmt"
 guest_ipv4_address = "192.168.111.49"
